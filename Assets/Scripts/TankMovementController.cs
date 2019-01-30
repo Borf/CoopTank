@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class TankMovementController : MonoBehaviour {
+    Rigidbody tankBody;
 	//all left wheels
 	public GameObject[] LeftWheels;
 	//all right wheels
@@ -25,7 +26,36 @@ public class TankMovementController : MonoBehaviour {
 	public float leftTrackSpeed = 0;
 	public float rightTrackSpeed = 0;
 
-	public IEnumerator rotateGunTowardsAsync(Transform other)
+    float[] sizes = new float[] { 150, 50, 50, 50, 50, 50, 50, 50, 125, 30, 30, 30, 30 };
+
+    public void Start()
+    {
+        tankBody = GetComponent<Rigidbody>();
+    }
+
+    void FixedUpdate()
+    {
+        int i = 0;
+        foreach (GameObject wheelL in LeftWheels)
+            wheelL.transform.Rotate(new Vector3(wheelsSpeed * leftTrackSpeed * 150/sizes[i++], 0f, 0f));
+        i = 0;
+        foreach (GameObject wheelR in RightWheels)
+            wheelR.transform.Rotate(new Vector3(-wheelsSpeed * rightTrackSpeed * 150/sizes[i++], 0f, 0f));
+
+        LeftTrack.transform.GetComponent<Renderer>().material.mainTextureOffset += new Vector2(0f, Time.deltaTime * tracksSpeed * leftTrackSpeed);
+        RightTrack.transform.GetComponent<Renderer>().material.mainTextureOffset += new Vector2(0f, Time.deltaTime * tracksSpeed * rightTrackSpeed);
+
+
+        tankBody.AddForceAtPosition(tankBody.transform.TransformDirection(new Vector3(0, 0, leftTrackSpeed*10000)), 
+                                    tankBody.transform.TransformPoint(new Vector3(10, 0, 0)));
+        tankBody.AddForceAtPosition(tankBody.transform.TransformDirection(new Vector3(0, 0, rightTrackSpeed*10000)), 
+                                    tankBody.transform.TransformPoint(new Vector3(-10, 0, 0)));
+
+    }
+
+
+
+    public IEnumerator rotateGunTowardsAsync(Transform other)
 	{
 		while (true)
 		{
